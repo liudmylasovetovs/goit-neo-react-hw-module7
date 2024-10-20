@@ -1,6 +1,5 @@
 import { useDispatch } from "react-redux";
-import { addContact } from "../../redux/contactsSlice";
-import { nanoid } from "nanoid";
+import { addContact } from "../../redux/contactsOps.js";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import styles from "./ContactForm.module.css";
@@ -12,7 +11,7 @@ const ContactForm = () => {
 
   const validationSchema = Yup.object({
     name: Yup.string()
-      .matches(/^[A-Za-z\s]+$/, "Letters and spaces only")
+      .matches(/^[A-Za-zА-Яа-яЁёІіЇїЄє\s]+$/, "Letters and spaces only")
       .min(3, "Must be at least 3 characters")
       .max(50, "Must be 50 characters or less")
       .required("Required"),
@@ -24,7 +23,7 @@ const ContactForm = () => {
   });
 
   const onSubmit = (values, { resetForm }) => {
-    dispatch(addContact({ ...values, id: nanoid() }));
+    dispatch(addContact(values));
     resetForm();
   };
 
@@ -37,7 +36,7 @@ const ContactForm = () => {
       <Form className={styles.formContainer}>
         <div>
           <label htmlFor="name">Name</label>
-          <Field name="name" type="text" />
+          <Field name="name" type="text" pattern="^[a-zA-Zа-яА-Я]+([' \-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*$" title="Name may contain only letters and spaces."  />
           <ErrorMessage
             name="name"
             component="div"
@@ -46,7 +45,12 @@ const ContactForm = () => {
         </div>
         <div>
           <label htmlFor="number">Number</label>
-          <Field name="number" type="text" />
+          <Field
+            name="number"
+            type="text"
+            pattern="(\+?( |-|\.)?\d{1,2}( |-|\.)?)?(\(?\d{3}\)?|\d{3})( |-|\.)?(\d{3}( |-|\.)?\d{4})"
+            title="Phone number must be at least 10 digits long or follow the format +380931112233 or +38 093 333 4455."
+          />
           <ErrorMessage
             name="number"
             component="div"
